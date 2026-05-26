@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>조유진 | Portfolio</title>
+  <meta name="description" content="조유진의 개인 포트폴리오 사이트" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ══ 네비게이션 ══ -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <a class="nav-logo" href="#section-home" id="nav-logo"></a>
+      <button class="hamburger" id="hamburger" aria-label="메뉴">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="nav-links">
+        <li><a class="nav-link" href="#section-home">Home</a></li>
+        <li><a class="nav-link" href="#section-about">About</a></li>
+        <li><a class="nav-link" href="#section-resume">History</a></li>
+        <li><a class="nav-link" href="#section-portfolio">Portfolio</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ══ HOME ══ -->
+  <section id="section-home">
+    <div class="hero-overlay"></div>
+    <div class="hero-inner">
+      <div class="hero-text">
+        <p class="hero-sub">안녕하세요 저는</p>
+        <h1 class="hero-name" id="hero-name"></h1>
+        <p class="hero-tagline" id="hero-tagline"></p>
+        <div class="hero-btns" id="hero-btns"></div>
+      </div>
+    </div>
+    <a class="scroll-down" href="#section-about" aria-label="스크롤">&#8595;</a>
+  </section>
+
+  <!-- ══ ABOUT ══ -->
+  <section id="section-about" class="section fade-in">
+    <div class="container">
+      <h2 class="section-title">About <strong>Me</strong></h2>
+
+      <div class="about-top">
+        <div class="about-photo-wrap">
+          <img class="about-photo" src="assets/profile.jpg" alt="프로필 사진" id="about-img" />
+        </div>
+        <div class="about-right">
+          <p class="about-intro" id="about-intro"></p>
+          <div class="about-contacts" id="about-contacts"></div>
+        </div>
+      </div>
+
+      <div class="skills-wrap">
+        <h3 class="sub-title">기술 스택</h3>
+        <div class="skills-cats" id="skills-cats"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ HISTORY ══ -->
+  <section id="section-resume" class="section fade-in">
+    <div class="container">
+      <h2 class="section-title">History</h2>
+
+      <div class="history-grid">
+        <div class="history-col">
+          <h3 class="sub-title">🎓 Education</h3>
+          <div class="timeline" id="edu-timeline"></div>
+        </div>
+        <div class="history-col">
+          <h3 class="sub-title">💼 Career</h3>
+          <div class="timeline" id="career-timeline"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ PORTFOLIO ══ -->
+  <section id="section-portfolio" class="section fade-in">
+    <div class="container">
+      <h2 class="section-title">Featured <strong>Portfolio</strong></h2>
+
+      <!-- 검색 및 필터 영역 -->
+      <div class="portfolio-controls">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="project-search" placeholder="프로젝트 검색 (제목, 기술 스택 등)..." />
+        </div>
+        <div class="filter-bar" id="filter-bar">
+          <button class="filter-btn active" data-cat="All">All</button>
+          <button class="filter-btn" data-cat="Data-Analysis">Data-Analysis</button>
+          <button class="filter-btn" data-cat="AI-ML">AI / ML</button>
+        </div>
+      </div>
+
+      <!-- 프로젝트 개수 표시 -->
+      <div class="portfolio-status">
+        총 <span id="project-count" class="count-num">0</span>개의 프로젝트
+      </div>
+
+      <div class="portfolio-grid" id="portfolio-grid"></div>
+    </div>
+  </section>
+
+  <!-- ══ 모달 ══ -->
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal-box" id="modal-box" role="dialog" aria-modal="true">
+      <button class="modal-close" id="modal-close" aria-label="닫기">&times;</button>
+      <h3 class="modal-title" id="modal-title"></h3>
+      <div class="modal-meta" id="modal-meta"></div>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- ══ 푸터 ══ -->
+  <footer>
+    <p id="footer-text"></p>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>포트폴리오 편집기</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #21262d;
+      --border: #30363d;
+      --accent: #58a6ff;
+      --accent2: #3fb950;
+      --danger: #f85149;
+      --text: #c9d1d9;
+      --text-muted: #8b949e;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* ── 헤더 ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    header h1 { font-size: 1.15rem; color: var(--accent); }
+    header p  { font-size: .82rem; color: var(--text-muted); margin-top: .1rem; }
+
+    .header-btns { display: flex; gap: .6rem; }
+
+    button {
+      padding: .5rem 1.1rem;
+      border-radius: 6px;
+      font-size: .88rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid transparent;
+      transition: all .15s;
+    }
+    .btn-save {
+      background: var(--accent);
+      color: #0d1117;
+    }
+    .btn-save:hover { opacity: .85; }
+
+    .btn-preview {
+      background: transparent;
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .btn-preview:hover { border-color: var(--accent); color: var(--accent); }
+
+    .btn-export {
+      background: transparent;
+      color: var(--accent2);
+      border-color: var(--accent2);
+    }
+    .btn-export:hover { background: var(--accent2); color: #0d1117; }
+
+    .btn-reset {
+      background: transparent;
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+    .btn-reset:hover { background: var(--danger); color: #fff; }
+
+    /* ── 탭 ── */
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      padding: 0 2rem;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+      color: var(--text-muted);
+      padding: .75rem 1.2rem;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: color .15s, border-color .15s;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* ── 컨텐츠 ── */
+    .tab-content { display: none; padding: 2rem; max-width: 860px; margin: 0 auto; }
+    .tab-content.active { display: block; }
+
+    /* ── 폼 요소 ── */
+    .form-group { margin-bottom: 1.4rem; }
+
+    label {
+      display: block;
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: .4rem;
+    }
+    label .hint {
+      font-weight: 400;
+      color: var(--text-muted);
+      font-size: .78rem;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="url"],
+    textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: .92rem;
+      padding: .6rem .9rem;
+      font-family: inherit;
+      transition: border-color .15s;
+      outline: none;
+    }
+    input:focus, textarea:focus { border-color: var(--accent); }
+    textarea { resize: vertical; min-height: 90px; }
+
+    /* ── 카드 (반복 항목) ── */
+    .card-list { display: flex; flex-direction: column; gap: 1rem; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem;
+      position: relative;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .card-num {
+      font-size: .8rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .btn-del {
+      background: none;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      padding: .2rem .65rem;
+      font-size: .78rem;
+      border-radius: 4px;
+    }
+    .btn-del:hover { background: var(--danger); color: #fff; }
+
+    .btn-add {
+      background: transparent;
+      border: 1px dashed var(--border);
+      color: var(--text-muted);
+      width: 100%;
+      padding: .65rem;
+      border-radius: 6px;
+      font-size: .88rem;
+      margin-top: .5rem;
+    }
+    .btn-add:hover { border-color: var(--accent); color: var(--accent); }
+
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+
+    /* ── 섹션 제목 ── */
+    .section-heading {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+      padding-bottom: .6rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── 저장 완료 토스트 ── */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--accent2);
+      color: #0d1117;
+      padding: .7rem 1.6rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: .9rem;
+      transition: transform .3s ease;
+      z-index: 9999;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── 스킬 아이콘 참고 링크 ── */
+    .icon-hint {
+      font-size: .75rem;
+      color: var(--text-muted);
+      margin-top: .3rem;
+    }
+    .icon-hint a { color: var(--accent); }
+
+    @media (max-width: 600px) {
+      .row2, .row3 { grid-template-columns: 1fr; }
+      header { flex-direction: column; gap: .8rem; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── 헤더 ── -->
+<header>
+  <div>
+    <h1>📝 포트폴리오 편집기</h1>
+    <p>수정 후 <strong>저장</strong>하면 index.html에 즉시 반영됩니다.</p>
+  </div>
+  <div class="header-btns">
+    <button class="btn-preview" onclick="openPreview()">👁 미리보기</button>
+    <button class="btn-export" onclick="exportConfig()">📥 config.js 내보내기</button>
+    <button class="btn-reset"  onclick="resetToDefault()">↺ 기본값으로</button>
+    <button class="btn-save"   onclick="saveAll()">💾 저장</button>
+  </div>
+</header>
+
+<!-- ── 탭 ── -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('basic')">기본정보</button>
+  <button class="tab-btn"        onclick="showTab('social')">소셜링크</button>
+  <button class="tab-btn"        onclick="showTab('edu')">History (학력·경력)</button>
+  <button class="tab-btn"        onclick="showTab('skills')">About-스킬</button>
+  <button class="tab-btn"        onclick="showTab('projects')">Portfolio (프로젝트)</button>
+</div>
+
+<!-- ── 기본정보 ── -->
+<div id="tab-basic" class="tab-content active">
+  <p class="section-heading">기본 정보</p>
+
+  <div class="row2">
+    <div class="form-group">
+      <label>이름 (한국어)</label>
+      <input type="text" id="name" placeholder="조유진" />
+    </div>
+    <div class="form-group">
+      <label>이름 (영어) <span class="hint">— 네비게이션에 표시</span></label>
+      <input type="text" id="nameEn" placeholder="Cho Yujin" />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>타이핑 애니메이션 텍스트 <span class="hint">— 쉼표로 구분</span></label>
+    <input type="text" id="taglines" placeholder="Developer, Data Scientist, AI Enthusiast" />
+  </div>
+
+  <div class="form-group">
+    <label>자기소개</label>
+    <textarea id="about" rows="5" placeholder="자기소개 문구를 입력하세요."></textarea>
+  </div>
+
+  <div class="form-group">
+    <label>프로필 이미지 경로 <span class="hint">— assets/ 폴더에 파일 넣고 경로 입력</span></label>
+    <input type="text" id="profileImage" placeholder="assets/profile.jpg" />
+  </div>
+</div>
+
+<!-- ── 소셜링크 ── -->
+<div id="tab-social" class="tab-content">
+  <p class="section-heading">소셜 링크 <span style="font-size:.8rem;color:var(--text-muted);font-weight:400;">— 비워두면 버튼이 숨겨집니다</span></p>
+
+  <div class="form-group">
+    <label>GitHub URL</label>
+    <input type="url" id="github" placeholder="https://github.com/username" />
+  </div>
+  <div class="form-group">
+    <label>이메일</label>
+    <input type="email" id="email" placeholder="example@email.com" />
+  </div>
+  <div class="form-group">
+    <label>전화번호</label>
+    <input type="text" id="phone" placeholder="010-0000-0000" />
+  </div>
+  <div class="form-group">
+    <label>LinkedIn URL</label>
+    <input type="url" id="linkedin" placeholder="https://linkedin.com/in/..." />
+  </div>
+  <div class="form-group">
+    <label>블로그/기타 URL</label>
+    <input type="url" id="blog" placeholder="https://..." />
+  </div>
+</div>
+
+<!-- ── 학력·경력 ── -->
+<div id="tab-edu" class="tab-content">
+  <p class="section-heading">학력 (Education)</p>
+  <div class="card-list" id="edu-list"></div>
+  <button class="btn-add" onclick="addEdu()">+ 학력 추가</button>
+
+  <p class="section-heading" style="margin-top:2.5rem;">경력 / 교육과정 (Career)</p>
+  <div class="card-list" id="career-list"></div>
+  <button class="btn-add" onclick="addCareer()">+ 경력 추가</button>
+</div>
+
+<!-- ── 스킬 ── -->
+<div id="tab-skills" class="tab-content">
+  <p class="section-heading">기술 스택</p>
+  <div class="card-list" id="skills-list"></div>
+  <button class="btn-add" onclick="addSkill()">+ 스킬 추가</button>
+  <p class="icon-hint" style="margin-top:1rem;">
+    아이콘 클래스 검색: <a href="https://devicon.dev/" target="_blank">devicon.dev</a>
+    — 예) <code>devicon-python-plain colored</code>
+  </p>
+</div>
+
+<!-- ── 프로젝트 ── -->
+<div id="tab-projects" class="tab-content">
+  <p class="section-heading">프로젝트</p>
+  <div class="card-list" id="projects-list"></div>
+  <button class="btn-add" onclick="addProject()">+ 프로젝트 추가</button>
+</div>
+
+<!-- ── 토스트 ── -->
+<div id="toast">✅ 저장 완료! 미리보기에서 확인하세요.</div>
+
+<script src="config.js"></script>
+<script>
+/* ══════════════════════════════════════════
+   포트폴리오 편집기 스크립트
+   ══════════════════════════════════════════ */
+
+const LS_KEY = "portfolio_config";
+
+/* 현재 작업 데이터 (localStorage → config.js 순으로 로드) */
+let DATA = loadData();
+
+function loadData() {
+  try {
+    const saved = localStorage.getItem(LS_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(CONFIG)); // config.js 기본값 깊은 복사
+}
+
+/* ── 탭 전환 ── */
+function showTab(name) {
+  document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+  document.getElementById("tab-" + name).classList.add("active");
+  event.target.classList.add("active");
+}
+
+/* ── 초기 렌더링 ── */
+window.addEventListener("DOMContentLoaded", () => {
+  // 기본정보
+  document.getElementById("name").value          = DATA.name        || "";
+  document.getElementById("nameEn").value        = DATA.nameEn      || "";
+  document.getElementById("taglines").value      = DATA.tagline || (DATA.taglines||[]).join(", ") || "";
+  document.getElementById("about").value         = DATA.intro || DATA.about || "";
+  document.getElementById("profileImage").value  = DATA.profileImage|| "";
+
+  // 소셜
+  document.getElementById("github").value    = (DATA.social || {}).github   || "";
+  document.getElementById("email").value     = (DATA.social || {}).email    || "";
+  document.getElementById("phone").value     = (DATA.social || {}).phone    || "";
+  document.getElementById("linkedin").value  = (DATA.social || {}).linkedin || "";
+  document.getElementById("blog").value      = (DATA.social || {}).blog     || "";
+
+  // 학력·경력
+  (DATA.education || []).forEach(addEdu);
+  (DATA.career    || []).forEach(addCareer);
+
+  // 스킬
+  (DATA.skills    || []).forEach(addSkill);
+
+  // 프로젝트
+  (DATA.projects  || []).forEach(addProject);
+});
+
+/* ════════════════ 학력 ════════════════ */
+function addEdu(data = {}) {
+  const list = document.getElementById("edu-list");
+  const idx  = list.children.length + 1;
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <div class="card-header">
+      <span class="card-num">학력 #${idx}</span>
+      <button class="btn-del" onclick="this.closest('.card').remove()">삭제</button>
+    </div>
+    <div class="form-group">
+      <label>기간</label>
+      <input type="text" name="edu_period" value="${esc(data.period||'')}" placeholder="2024.03 ~ 현재 (휴학 중)" />
+    </div>
+    <div class="row2">
+      <div class="form-group">
+        <label>학교명</label>
+        <input type="text" name="edu_school" value="${esc(data.school||'')}" placeholder="광운대학교" />
+      </div>
+      <div class="form-group">
+        <label>학과</label>
+        <input type="text" name="edu_dept" value="${esc(data.dept||'')}" placeholder="정보융합학부 데이터사이언스학과" />
+      </div>
+    </div>
+  `;
+  list.appendChild(card);
+}
+
+/* ════════════════ 경력 ════════════════ */
+function addCareer(data = {}) {
+  const list = document.getElementById("career-list");
+  const idx  = list.children.length + 1;
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <div class="card-header">
+      <span class="card-num">경력 #${idx}</span>
+      <button class="btn-del" onclick="this.closest('.card').remove()">삭제</button>
+    </div>
+    <div class="form-group">
+      <label>기간</label>
+      <input type="text" name="career_period" value="${esc(data.period||'')}" placeholder="2025.12.29 ~ 2026.05.29" />
+    </div>
+    <div class="row2">
+      <div class="form-group">
+        <label>기관명</label>
+        <input type="text" name="career_org" value="${esc(data.org||'')}" placeholder="국비교육과정" />
+      </div>
+      <div class="form-group">
+        <label>수료/재직 여부</label>
+        <input type="text" name="career_desc" value="${esc(data.desc||'')}" placeholder="수료" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label>역할/과정명</label>
+      <input type="text" name="career_role" value="${esc(data.role||'')}" placeholder="데이터 분석 및 생성형 AI 기반 자동화 시스템 개발 과정" />
+    </div>
+  `;
+  list.appendChild(card);
+}
+
+/* ════════════════ 스킬 (카테고리 형식) ════════════════ */
+function addSkill(data = {}) {
+  const list = document.getElementById("skills-list");
+  const idx  = list.children.length + 1;
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <div class="card-header">
+      <span class="card-num">스킬 카테고리 #${idx}</span>
+      <button class="btn-del" onclick="this.closest('.card').remove()">삭제</button>
+    </div>
+    <div class="form-group">
+      <label>카테고리명</label>
+      <input type="text" name="skill_category" value="${esc(data.category||'')}" placeholder="Data Science / AI" />
+    </div>
+    <div class="form-group">
+      <label>항목 <span class="hint">— 쉼표로 구분</span></label>
+      <input type="text" name="skill_items" value="${esc((data.items||[]).join(', '))}" placeholder="Python, Pandas, Machine Learning" />
+    </div>
+  `;
+  list.appendChild(card);
+}
+
+/* ════════════════ 프로젝트 ════════════════ */
+function addProject(data = {}) {
+  const list = document.getElementById("projects-list");
+  const idx  = list.children.length + 1;
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <div class="card-header">
+      <span class="card-num">프로젝트 #${idx}</span>
+      <button class="btn-del" onclick="this.closest('.card').remove()">삭제</button>
+    </div>
+    <div class="form-group">
+      <label>프로젝트명</label>
+      <input type="text" name="proj_title" value="${esc(data.title||'')}" placeholder="프로젝트 제목" />
+    </div>
+    <div class="form-group">
+      <label>설명</label>
+      <textarea name="proj_desc" rows="3" placeholder="프로젝트 설명을 입력하세요.">${esc(data.description||'')}</textarea>
+    </div>
+    <div class="row2">
+      <div class="form-group">
+        <label>카테고리</label>
+        <select name="proj_cat" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:.6rem .9rem;font-size:.92rem;">
+          <option value="Data-Analysis" ${(data.category||'')==='Data-Analysis'?'selected':''}>Data-Analysis</option>
+          <option value="AI-ML"         ${(data.category||'')==='AI-ML'        ?'selected':''}>AI / ML</option>
+          <option value="Application"   ${(data.category||'')==='Application'  ?'selected':''}>Application</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>썸네일 이미지 경로 <span class="hint">— 없으면 빈칸</span></label>
+        <input type="text" name="proj_thumb" value="${esc(data.thumb||'')}" placeholder="assets/project1.jpg" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label>기술 태그 (modal 표시) <span class="hint">— 쉼표로 구분</span></label>
+      <input type="text" name="proj_tags" value="${esc((data.details?.stack||data.tags||[]).join(', '))}" placeholder="Python, AI, Machine Learning" />
+    </div>
+    <div class="form-group">
+      <label>주요 기능 <span class="hint">— 줄바꿈으로 구분</span></label>
+      <textarea name="proj_features" rows="4" placeholder="기능 1&#10;기능 2&#10;기능 3">${esc((data.details?.features||[]).join('\n'))}</textarea>
+    </div>
+    <div class="row2">
+      <div class="form-group">
+        <label>GitHub URL <span class="hint">— 없으면 빈칸</span></label>
+        <input type="url" name="proj_github" value="${esc(data.github||'')}" placeholder="https://github.com/..." />
+      </div>
+      <div class="form-group">
+        <label>Demo URL <span class="hint">— 없으면 빈칸</span></label>
+        <input type="url" name="proj_demo" value="${esc(data.demo||'')}" placeholder="https://..." />
+      </div>
+    </div>
+  `;
+  list.appendChild(card);
+}
+
+/* ════════════════ 저장 ════════════════ */
+function saveAll() {
+  const newData = collectData();
+  localStorage.setItem(LS_KEY, JSON.stringify(newData));
+  showToast("✅ 저장 완료! 미리보기에서 확인하세요.");
+}
+
+function collectData() {
+  return {
+    name:         document.getElementById("name").value.trim(),
+    nameEn:       document.getElementById("nameEn").value.trim(),
+    tagline:      document.getElementById("taglines").value.trim(),  /* config.js와 동일하게 단수 string */
+    intro:        document.getElementById("about").value.trim(),     /* config.js의 intro 필드 */
+    about:        document.getElementById("about").value.trim(),     /* 하위호환 */
+    profileImage: document.getElementById("profileImage").value.trim(),
+    social: {
+      github:   document.getElementById("github").value.trim(),
+      email:    document.getElementById("email").value.trim(),
+      phone:    document.getElementById("phone").value.trim(),
+      linkedin: document.getElementById("linkedin").value.trim(),
+      blog:     document.getElementById("blog").value.trim(),
+    },
+    education: collectCards("edu-list", card => ({
+      period: val(card, "edu_period"),
+      school: val(card, "edu_school"),
+      dept:   val(card, "edu_dept"),
+    })),
+    career: collectCards("career-list", card => ({
+      period: val(card, "career_period"),
+      org:    val(card, "career_org"),
+      role:   val(card, "career_role"),
+      desc:   val(card, "career_desc"),
+    })),
+    skills: collectCards("skills-list", card => ({
+      category: val(card, "skill_category"),
+      items:    val(card, "skill_items").split(",").map(s => s.trim()).filter(Boolean),
+    })),
+    projects: collectCards("projects-list", card => ({
+      id:       val(card, "proj_title").toLowerCase().replace(/\s+/g, "-"),
+      title:    val(card, "proj_title"),
+      category: val(card, "proj_cat"),
+      thumb:    val(card, "proj_thumb"),
+      github:   val(card, "proj_github"),
+      demo:     val(card, "proj_demo"),
+      details: {
+        overview:  card.querySelector("[name='proj_desc']").value.trim(),
+        stack:     val(card, "proj_tags").split(",").map(s => s.trim()).filter(Boolean),
+        features:  card.querySelector("[name='proj_features']").value.trim().split("\n").map(s=>s.trim()).filter(Boolean),
+      },
+    })),
+  };
+}
+
+/* ── config.js 내보내기 ── */
+function exportConfig() {
+  const data = collectData();
+  const js = `/**
+ * 포트폴리오 설정 파일 (admin.html에서 내보낸 파일)
+ * 이 파일을 기존 config.js 와 교체하세요.
+ */
+const CONFIG = ${JSON.stringify(data, null, 2)};
+`;
+  const blob = new Blob([js], { type: "text/javascript;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "config.js";
+  a.click();
+  showToast("📥 config.js 다운로드 완료");
+}
+
+/* ── 기본값으로 초기화 ── */
+function resetToDefault() {
+  if (!confirm("모든 변경사항을 지우고 config.js 기본값으로 되돌릴까요?")) return;
+  localStorage.removeItem(LS_KEY);
+  location.reload();
+}
+
+/* ── 미리보기 ── */
+function openPreview() {
+  saveAll();
+  window.open("index.html", "_blank");
+}
+
+/* ══ 유틸 ══ */
+function collectCards(listId, mapper) {
+  return Array.from(document.getElementById(listId).children).map(mapper);
+}
+
+function val(card, name) {
+  const el = card.querySelector(`[name='${name}']`);
+  return el ? el.value.trim() : "";
+}
+
+function esc(str) {
+  return String(str).replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2800);
+}
+</script>
+</body>
+</html>
