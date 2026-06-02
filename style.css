@@ -537,7 +537,15 @@ img { max-width: 100%; display: block; }
   display: block;
   transition: transform 0.3s ease;
 }
-.pf-card:hover .pf-thumb {
+.pf-doc-preview {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  background: transparent;
+}
+.pf-card:hover .pf-thumb,
+.pf-card:hover .pf-doc-preview {
   transform: scale(1.05);
 }
 
@@ -581,12 +589,19 @@ img { max-width: 100%; display: block; }
   font-size: 1.15rem;
   font-weight: 700;
   color: #fff;
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.4rem;
   line-height: 1.4;
   transition: color 0.2s;
 }
 .pf-card:hover .pf-title {
   color: var(--accent);
+}
+
+.pf-summary {
+  margin: 0 0 1rem;
+  font-size: .95rem;
+  color: var(--text-muted);
+  line-height: 1.5;
 }
 
 .pf-info-list {

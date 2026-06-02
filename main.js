@@ -136,7 +136,9 @@ function renderPortfolio() {
 
     const thumb = p.thumb
       ? `<img class="pf-thumb" src="${p.thumb}" alt="${p.title}" />`
-      : `<div class="pf-thumb-placeholder grad-${i % 5}">${GRAD_ICONS[i % 5]}</div>`;
+      : p.presentation
+        ? `<object class="pf-doc-preview" data="${p.presentation}#page=1&view=FitH" type="application/pdf" aria-label="${p.title} 발표자료 첫 페이지 보기"><div class="pf-thumb-placeholder grad-${i % 5}">${GRAD_ICONS[i % 5]}</div></object>`
+        : `<div class="pf-thumb-placeholder grad-${i % 5}">${GRAD_ICONS[i % 5]}</div>`;
 
     const catLabel = { "Data-Analysis": "Data-Analysis", "AI-ML": "AI / ML" }[p.category] || p.category;
 
@@ -154,15 +156,11 @@ function renderPortfolio() {
           <span class="pf-badge">${catLabel}</span>
         </div>
         <h3 class="pf-title">${p.title}</h3>
-        
+        <p class="pf-summary">${p.summary || ""}</p>
         <div class="pf-info-list">
           <div class="pf-info-item">
             <span class="info-icon">📅</span>
             <span class="info-text">${p.period || ""}</span>
-          </div>
-          <div class="pf-info-item">
-            <span class="info-icon">👤</span>
-            <span class="info-text">${p.member || ""}</span>
           </div>
         </div>
 
@@ -266,6 +264,7 @@ function openModal(p) {
   const links = [
     p.github ? `<a href="${p.github}" target="_blank" rel="noopener" class="btn btn-ghost" style="font-size:.85rem;padding:.4rem 1rem;">GitHub</a>` : "",
     p.demo   ? `<a href="${p.demo}"   target="_blank" rel="noopener" class="btn btn-primary" style="font-size:.85rem;padding:.4rem 1rem;">Demo</a>` : "",
+    p.presentation ? `<a href="${p.presentation}" target="_blank" rel="noopener" class="btn btn-primary" style="font-size:.85rem;padding:.4rem 1rem;">발표자료 보기</a>` : "",
   ].filter(Boolean).join("");
   if (links) html += `<div class="modal-links">${links}</div>`;
 
