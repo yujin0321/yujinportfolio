@@ -119,7 +119,6 @@ function tlItem(period, main, sub, note) {
    ══════════════════════════════════════ */
 const GRAD_ICONS = ["🛡️", "💳", "🍿", "⚙️", "👵"];
 let activeCat = "All";
-let searchQuery = "";
 
 function renderPortfolio() {
   const grid = document.getElementById("portfolio-grid");
@@ -131,14 +130,18 @@ function renderPortfolio() {
     card.className = "pf-card";
     card.dataset.cat = p.category;
     card.dataset.id  = p.id;
+    card.dataset.period = p.period || "";
     card.dataset.stack = (p.details?.stack || []).join(" ");
     card.dataset.overview = p.details?.overview || "";
 
+    const isPdf = typeof p.presentation === "string" && p.presentation.toLowerCase().endsWith(".pdf");
     const thumb = p.thumb
       ? `<img class="pf-thumb" src="${p.thumb}" alt="${p.title}" />`
-      : p.presentation
-        ? `<object class="pf-doc-preview" data="${p.presentation}#page=1&view=FitH" type="application/pdf" aria-label="${p.title} 발표자료 첫 페이지 보기"><div class="pf-thumb-placeholder grad-${i % 5}">${GRAD_ICONS[i % 5]}</div></object>`
-        : `<div class="pf-thumb-placeholder grad-${i % 5}">${GRAD_ICONS[i % 5]}</div>`;
+      : isPdf
+        ? `<embed class="pf-doc-preview" src="${p.presentation}#page=1&view=FitH" type="application/pdf" aria-label="${p.title} 발표자료 첫 페이지 보기" />`
+        : p.presentation
+          ? `<object class="pf-doc-preview" data="${p.presentation}" type="application/pdf" aria-label="${p.title} 발표자료 첫 페이지 보기"><div class="pf-thumb-placeholder grad-${i % 5}">${GRAD_ICONS[i % 5]}</div></object>`
+          : `<div class="pf-thumb-placeholder grad-${i % 5}">${GRAD_ICONS[i % 5]}</div>`;
 
     const catLabel = { "Data-Analysis": "Data-Analysis", "AI-ML": "AI / ML" }[p.category] || p.category;
 
@@ -190,20 +193,18 @@ function applyFilters() {
   let visibleCount = 0;
 
   cards.forEach(card => {
-    const title = card.querySelector(".pf-title").textContent.toLowerCase();
-    const stack = card.dataset.stack.toLowerCase();
-    const overview = card.dataset.overview.toLowerCase();
+    const id = card.dataset.id;
+    const period = card.dataset.period || "";
     const category = card.dataset.cat;
 
-    const matchesCat = (activeCat === "All" || category === activeCat);
-    const matchesSearch = (!searchQuery || 
-                           title.includes(searchQuery) || 
-                           stack.includes(searchQuery) ||
-                           overview.includes(searchQuery));
+    const matchesCat =
+      activeCat === "All" ||
+      (activeCat === "Data-Analysis" && (id === "netflix" || (period.includes("2025") && id !== "huss"))) ||
+      (activeCat === "ML-DL" && (id === "semiconductor" || id === "huss")) ||
+      (activeCat === "AI-Agent" && (id === "semiconductor" || id === "mindpick"));
 
-    const isVisible = matchesCat && matchesSearch;
-    card.classList.toggle("hidden", !isVisible);
-    if (isVisible) {
+    card.classList.toggle("hidden", !matchesCat);
+    if (matchesCat) {
       visibleCount++;
     }
   });
@@ -214,16 +215,8 @@ function applyFilters() {
   }
 }
 
-/* ── 필터 & 검색 초기화 ── */
+/* ── 필터 초기화 ── */
 function initFilter() {
-  const searchInput = document.getElementById("project-search");
-  if (searchInput) {
-    searchInput.addEventListener("input", (e) => {
-      searchQuery = e.target.value.trim().toLowerCase();
-      applyFilters();
-    });
-  }
-
   document.querySelectorAll(".filter-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
